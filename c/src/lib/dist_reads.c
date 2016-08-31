@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "cog.h"
 #include "cracker.h"
@@ -10,6 +11,7 @@
 #include "zipf.h"
 #include "heavyhit.h"
 #include "dist_reads.h"
+#include "policy.h"
 
 #define BUFFER_SIZE 10
 #define KEY_RANGE 1000000
@@ -157,6 +159,7 @@ struct cog *heavyhitreads_on_cog(struct cog *cog, struct workload_test *w)
   return cog;
 }
 
+
 struct cog *getmedian_policy(struct cog *cog, bool rebalance, int i)
 {
   struct cog *cog_median;
@@ -179,6 +182,35 @@ struct cog *splay_once(struct cog *cog, int i)
     return cog;
   }
 }
+
+#ifdef __ADVANCED
+//check read counters working or not
+void readsCounterTest() {
+  int size = 100;
+  buffer b = buffer_alloc(size);
+
+  for(int i = 0; i < size; i++){
+    b->data[i].key = rand() % 100;
+    b->data[i].value = rand();
+  }
+
+  struct cog *cog = make_array(0, size, b);
+  cog = crack(cog, 25, 75);
+  cog = crack(cog, 75, 85);
+  cog = crack(cog, 15, 25);
+  cog = crack(cog, 65, 75);
+  printJITD(cog, 0);
+
+ cog = splay(cog, cog->data.btree.lhs);
+  printf("\n\n");
+  printJITD(cog, 0);
+
+  cog = splay(cog, cog->data.btree.rhs->data.btree.rhs);
+  printf("\n\n");
+  printJITD(cog, 0);
+}
+#endif
+
 
 buffer mk_random_buffer(int size)
 {
