@@ -233,6 +233,53 @@ void test14()
   printf("\n");
 }
 
+#ifdef __ADVANCED
+void test15()
+{
+  printf("test 15 Checking whether read counters are updated on runs\n");
+    int size = 100;
+  buffer b = buffer_alloc(size);
+
+  for(int i = 0; i < size; i++){
+    b->data[i].key = rand() % 100;
+    b->data[i].value = rand();
+  }
+
+  struct cog *cog = make_array(0, size, b);
+  cog = crack(cog, 25, 75);
+  cog = crack(cog, 75, 85);
+  cog = crack(cog, 15, 25);
+  cog = crack(cog, 65, 75);
+  printJITD(cog, 0);
+
+ cog = splay(cog, cog->data.btree.lhs);
+  printf("\n\n");
+  printJITD(cog, 0);
+
+  cog = splay(cog, cog->data.btree.rhs->data.btree.rhs);
+  printf("\n\n");
+  printJITD(cog, 0);
+   free_cog(cog);
+}
+
+void test16()
+{
+  printf("test 16 in order to test the zipfinize policy\n");
+  double alpha = 1;
+  long elements = 10000;
+  long reads = 1000;
+  long reads = 1000000;
+  long count = getZipfCountAtCDF(elements, alpha, .5);
+  long levels = getNumberOfLevels(count);
+  struct cog *cog = mk_random_array(elements);
+  rand_val(46478);
+  cog = zipfianReads(cog, alpha, reads, elements);
+  cog = zipfinize(cog, levels);
+  //printJITD(cog, 0);
+  free_cog(cog);
+  
+}
+#endif
 void run_input(char *filename);
 
 void run_input(char *filename)
